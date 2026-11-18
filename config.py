@@ -11,6 +11,8 @@ load_dotenv()
 TELEGRAM_BOT_TOKEN: str = os.environ["TELEGRAM_BOT_TOKEN"]
 # Optional: restrict webhook to only your channel (channel ID as negative int)
 TELEGRAM_CHANNEL_ID: str = os.getenv("TELEGRAM_CHANNEL_ID", "")
+# Your personal Telegram chat ID — bot will DM you here when alert fires
+TELEGRAM_OWNER_CHAT_ID: str = os.environ["TELEGRAM_OWNER_CHAT_ID"]
 
 # ── Twilio ────────────────────────────────────────────────
 TWILIO_ACCOUNT_SID: str = os.environ["TWILIO_ACCOUNT_SID"]

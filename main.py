@@ -1,6 +1,6 @@
 """
 main.py — FastAPI webhook server for Telegram bot
-Listens for channel messages and triggers a Twilio call
+Listens for channel messages and sends a Telegram DM alert
 when the name "Mantsa" is detected.
 """
 
@@ -8,19 +8,19 @@ import logging
 import time
 from contextlib import asynccontextmanager
 
-import httpx
 from fastapi import FastAPI, Request, Response, HTTPException
 from fastapi.responses import JSONResponse
 
 from config import (
     TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHANNEL_ID,
+    TELEGRAM_OWNER_CHAT_ID,
     WATCH_NAMES,
     CALL_COOLDOWN_SECONDS,
     WEBHOOK_SECRET,
     PORT,
 )
-from twilio_caller import place_call
+from telegram_notifier import send_alert
 
 # ── Logging ───────────────────────────────────────────────
 logging.basicConfig(
@@ -53,10 +53,10 @@ def contains_watch_name(text: str) -> bool:
 # ── FastAPI app ───────────────────────────────────────────
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("🤖 Telegram Call Bot starting up…")
+    logger.info("🤖 Telegram Alert Bot starting up…")
     logger.info(f"👁  Watching for names: {WATCH_NAMES}")
-    logger.info(f"📞 Will call: {__import__('config').YOUR_PHONE_NUMBER}")
-    logger.info(f"⏱  Cooldown between calls: {CALL_COOLDOWN_SECONDS}s")
+    logger.info(f"📲 Will DM alert to chat_id: {TELEGRAM_OWNER_CHAT_ID}")
+    logger.info(f"⏱  Cooldown between alerts: {CALL_COOLDOWN_SECONDS}s")
     yield
     logger.info("🛑 Bot shutting down.")
 
@@ -154,13 +154,13 @@ async def telegram_webhook(request: Request):
     # ── Place call ────────────────────────────────────────
     # Send a short preview of the message (first 100 chars)
     preview = text[:100]
-    call_sid = place_call(message_preview=preview)
+    sent = await send_alert(message_text=text)
 
-    if call_sid:
+    if sent:
         mark_call_sent()
-        logger.info(f"✅ Call initiated. SID: {call_sid}")
+        logger.info(f"✅ Alert DM sent successfully!")
     else:
-        logger.error("❌ Call failed — check Twilio credentials/logs.")
+        logger.error("❌ Alert DM failed — check bot token and owner chat ID.")
 
     # Always return 200 to Telegram (so it doesn't retry)
     return Response(status_code=200)
