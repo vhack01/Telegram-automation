@@ -70,6 +70,27 @@ async def health_check():
     return {"status": "ok", "watching_for": WATCH_NAMES}
 
 
+@app.get("/twiml")
+@app.post("/twiml")
+async def twiml_response():
+    """
+    Twilio fetches this endpoint when the call connects.
+    Returns TwiML XML that tells Twilio what to say.
+    Works with Twilio trial accounts (no inline twiml param needed).
+    """
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        "<Response>"
+        "<Say>Alert! Your name Mantsa was mentioned in your Telegram channel. "
+        "Please check your Telegram immediately.</Say>"
+        "<Pause length=\"1\"/>"
+        "<Say>Repeating. Your name Mantsa was mentioned in your Telegram channel. "
+        "Please check your Telegram immediately.</Say>"
+        "</Response>"
+    )
+    return Response(content=xml, media_type="application/xml")
+
+
 @app.post("/webhook")
 async def telegram_webhook(request: Request):
     """

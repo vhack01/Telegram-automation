@@ -35,5 +35,9 @@ CALL_COOLDOWN_SECONDS: int = int(os.getenv("CALL_COOLDOWN_SECONDS", "300"))
 # ── Server ────────────────────────────────────────────────
 PORT: int = int(os.getenv("PORT", "8000"))
 
+# Your Railway public URL (e.g. https://xxxx.up.railway.app)
+# Used so Twilio can fetch the TwiML message from our app
+APP_URL: str = os.getenv("APP_URL", "").rstrip("/")
+
 # ── Webhook secret (optional extra security) ───────────────
 WEBHOOK_SECRET: str = os.getenv("WEBHOOK_SECRET", "")
