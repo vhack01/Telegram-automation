@@ -30,14 +30,15 @@ def build_twiml(message_preview: str = "") -> str:
     alert_text += "Please check your Telegram immediately. Goodbye!"
 
     # Repeat the message twice so you don't miss it
-    response.say(alert_text, voice="Polly.Joanna", language="en-US")
+    # Using "alice" voice — compatible with Twilio trial accounts
+    response.say(alert_text, voice="alice", language="en-US")
     response.pause(length=1)
-    response.say("Repeating: " + alert_text, voice="Polly.Joanna", language="en-US")
+    response.say("Repeating: " + alert_text, voice="alice", language="en-US")
 
     return str(response)
 
 
-def place_call(message_preview: str = "") -> str | None:
+def place_call(message_preview: str = ""):
     """
     Place a call to YOUR_PHONE_NUMBER.
     Returns the Twilio call SID on success, None on failure.
