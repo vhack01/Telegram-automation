@@ -4,7 +4,6 @@ twilio_caller.py — Place a phone call via Twilio Voice API
 
 import logging
 from twilio.rest import Client
-from twilio.twiml.voice_response import VoiceResponse
 from config import (
     TWILIO_ACCOUNT_SID,
     TWILIO_AUTH_TOKEN,
@@ -15,29 +14,6 @@ from config import (
 logger = logging.getLogger(__name__)
 
 
-def build_twiml(message_preview: str = "") -> str:
-    """
-    Build the TwiML XML that Twilio will read aloud when you pick up.
-    """
-    response = VoiceResponse()
-
-    alert_text = (
-        "Hello! This is an automated alert. "
-        "Your name, Mantsa, was just mentioned in your Telegram channel. "
-    )
-    if message_preview:
-        alert_text += f"The message said: {message_preview}. "
-    alert_text += "Please check your Telegram immediately. Goodbye!"
-
-    # Repeat the message twice so you don't miss it
-    # Using "alice" voice — compatible with Twilio trial accounts
-    response.say(alert_text, voice="alice", language="en-US")
-    response.pause(length=1)
-    response.say("Repeating: " + alert_text, voice="alice", language="en-US")
-
-    return str(response)
-
-
 def place_call(message_preview: str = ""):
     """
     Place a call to YOUR_PHONE_NUMBER.
@@ -46,14 +22,18 @@ def place_call(message_preview: str = ""):
     try:
         client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-        twiml = build_twiml(message_preview)
+        # Simplest possible TwiML — works on all Twilio trial accounts
+        twiml = (
+            "<Response>"
+            "<Say>Alert! Your name Mantsa was mentioned in your Telegram channel. "
+            "Please check your Telegram immediately.</Say>"
+            "</Response>"
+        )
 
         call = client.calls.create(
             to=YOUR_PHONE_NUMBER,
             from_=TWILIO_FROM_NUMBER,
             twiml=twiml,
-            # Optional: timeout after 30 seconds of ringing
-            timeout=30,
         )
 
         logger.info(f"📞 Call placed! SID={call.sid} → {YOUR_PHONE_NUMBER}")
